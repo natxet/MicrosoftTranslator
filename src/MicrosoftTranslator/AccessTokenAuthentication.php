@@ -12,7 +12,7 @@ class AccessTokenAuthentication
      * @param string $authUrl      Oauth Url.
      *
      * @return string the access token
-     * @throws Exception if there is a CURL error
+     * @throws \Exception if there is a CURL error
      */
     function getTokens( $grantType, $scopeUrl, $clientID, $clientSecret, $authUrl )
     {
@@ -43,14 +43,14 @@ class AccessTokenAuthentication
         $curlErrno = curl_errno( $ch );
         if ($curlErrno) {
             $curlError = curl_error( $ch );
-            throw new Exception( $curlError );
+            throw new \Exception( $curlError );
         }
         //Close the Curl Session.
         curl_close( $ch );
         //Decode the returned JSON string.
         $objResponse = json_decode( $strResponse );
         if ($objResponse->error) {
-            throw new Exception( $objResponse->error_description );
+            throw new \Exception( $objResponse->error_description );
         }
         return $objResponse->access_token;
     }

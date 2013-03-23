@@ -93,7 +93,7 @@ class Translate
             }
             return $translatedStr;
 
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
 
             error_log( "MicrosoftTranslator Translate error: " . $e->getMessage() . PHP_EOL );
             return false;

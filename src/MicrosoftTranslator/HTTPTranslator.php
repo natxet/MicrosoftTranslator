@@ -31,7 +31,7 @@ Class HTTPTranslator
         $curlErrno = curl_errno( $ch );
         if ($curlErrno) {
             $curlError = curl_error( $ch );
-            throw new Exception( $curlError );
+            throw new \Exception( $curlError );
         }
         //Close a cURL session.
         curl_close( $ch );
