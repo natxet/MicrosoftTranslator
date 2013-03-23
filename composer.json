@@ -1,0 +1,32 @@
+{
+    "name": "natxet/microsoft-translation-api",
+    "version": "0.0.1",
+    "type": "library",
+    "description": "Access to the free Microsoft's HTTP translation API",
+    "keywords": ["translation","microsoft"],
+    "homepage": "http://msdn.microsoft.com/en-us/library/ff512419.aspx",
+    "authors": [
+        {
+            "name": "Microsoft"
+        },
+        {
+            "name": "Natxet",
+            "email": "icofre@gmail.com"
+        }
+    ],
+    "repositories": {
+        "Github": {
+            "vcs": {
+                "url": "git@github.com:natxet/MicrosoftTranslator.git"
+            }
+        }
+    },
+    "require": {
+        "php": ">=5.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "MicrosoftTranslator": "src/"
+        }
+    }
+}
