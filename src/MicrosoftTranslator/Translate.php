@@ -36,7 +36,15 @@ class Translate
     /**
      * @var string Base url for translate, ending in ? or & for including params as GET
      */
-    protected $translateBaseUrl = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate?";
+    protected $service_url = array(
+        'single'   => "http://api.microsofttranslator.com/V2/Ajax.svc/TranslateArray",
+        'multiple' => "http://api.microsofttranslator.com/V2/Ajax.svc/Translate"
+    );
+
+    /**
+     * @var string The token, if you have it
+     */
+    static protected $token;
 
     /**
      * @param array $config the config, minimum: clientID and clientSecret
@@ -58,33 +66,28 @@ class Translate
     }
 
     /**
-     * @param string $inputStr     the string to translate
-     * @param string $fromLanguage ISO code 2 chars of the input text language
-     * @param string $toLanguage   ISO code 2 chars of the output text language
+     * @param string|array $texts         the string to translate. If array, an array of strings
+     * @param string       $to            ISO code 2 chars of the output text language
+     * @param string       $from          ISO code 2 chars of the input text language
      *
-     * @return string|bool The translated string or FALSE if error occurs
+     * @return string|array|bool The translated string or FALSE if error occurs. If array given, array returned.
      */
-    public function translate( $inputStr, $fromLanguage, $toLanguage )
+    public function translate( $texts, $to, $from )
     {
         try {
-            //Create the AccessTokenAuthentication object.
-            $authObj = new AccessTokenAuthentication();
-
-            //Get the Access token.
-            $accessToken = $authObj->getTokens(
-                $this->grantType,
-                $this->scopeUrl,
-                $this->clientID,
-                $this->clientSecret,
-                $this->authUrl
-            );
-
-            $authHeader    = "Authorization: Bearer " . $accessToken;
-            $params        = "text=" . urlencode( $inputStr ) . "&to=" . $toLanguage . "&from=" . $fromLanguage;
-            $translateUrl  = $this->translateBaseUrl . $params;
-            $translatorObj = new HTTPTranslator();
-            $curlResponse  = $translatorObj->curlRequest( $translateUrl, $authHeader );
-            return $curlResponse;
+            if (!is_array( $texts )) {
+                $texts = array( $texts );
+            }
+            $translations = array();
+            $response     = json_decode( $this->requestService( $this->getUrl( 'single', $texts, $to, $from ) ) );
+            foreach ( $response as $translation ) {
+                $translations[] = $translation->TranslatedText;
+            }
+            if (count( $translations ) == 1) {
+                return $translations[0];
+            } else {
+                return $translations;
+            }
 
         } catch ( \Exception $e ) {
             error_log( "MicrosoftTranslator Translate error: " . $e->getMessage() . PHP_EOL );
@@ -92,4 +95,46 @@ class Translate
         }
 
     }
+
+    /**
+     * @return string the token, stored in a static property for runtime cache.
+     */
+    protected function getToken()
+    {
+        if (empty( self::$token )) {
+            $authObj     = new AccessTokenAuthentication();
+            self::$token = $authObj->getTokens(
+                $this->grantType,
+                $this->scopeUrl,
+                $this->clientID,
+                $this->clientSecret,
+                $this->authUrl
+            );
+        }
+        return self::$token;
+    }
+
+    protected function getUrl( $service = 'single', array $texts, $to, $from )
+    {
+        $params = array( 'texts' => json_encode( $texts ), 'to' => $to, 'from' => $from );
+        return $this->service_url[$service] . '?' . \http_build_query( $params );
+    }
+
+    /**
+     * @param string $url the URL to call
+     *
+     * @return string the CURL response, plain text, without the BOM bytes
+     */
+    protected function requestService( $url )
+    {
+        $auth_header   = "Authorization: Bearer " . $this->getToken();
+        $translator    = new HTTPTranslator();
+        $curl_response = $translator->curlRequest( $url, $auth_header );
+        /*
+         * Get rid of the UTF-16 BOM HEXCODE
+         * http://stackoverflow.com/a/7128250/1237569
+         */
+        return substr( $curl_response, 3 );
+    }
+
 }
