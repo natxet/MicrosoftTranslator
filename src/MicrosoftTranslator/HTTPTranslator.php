@@ -11,7 +11,7 @@ Class HTTPTranslator
      * @param string $authHeader Authorization Header string.
      *
      * @return string string the response as a string
-     * @throws Exception
+     * @throws \Exception
      */
     function curlRequest( $url, $authHeader )
     {
