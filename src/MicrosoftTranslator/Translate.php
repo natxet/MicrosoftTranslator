@@ -36,7 +36,7 @@ class Translate
     /**
      * @var string Base url for translate, ending in ? or & for including params as GET
      */
-    protected $translateBaseUrl = "http://api.microsofttranslator.com/v2/Http.svc/Translate?";
+    protected $translateBaseUrl = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate?";
 
     /**
      * @param array $config the config, minimum: clientID and clientSecret
@@ -84,17 +84,9 @@ class Translate
             $translateUrl  = $this->translateBaseUrl . $params;
             $translatorObj = new HTTPTranslator();
             $curlResponse  = $translatorObj->curlRequest( $translateUrl, $authHeader );
-
-            //Interprets a string of XML into an object.
-            $xmlObj = simplexml_load_string( $curlResponse );
-            foreach ( (array) $xmlObj[0] as $val ) {
-                // TO-DO: this is strange, Microsoft guys... Why a foreach?
-                $translatedStr = $val;
-            }
-            return $translatedStr;
+            return $curlResponse;
 
         } catch ( \Exception $e ) {
-
             error_log( "MicrosoftTranslator Translate error: " . $e->getMessage() . PHP_EOL );
             return false;
         }
