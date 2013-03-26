@@ -19,6 +19,9 @@ Class HTTPTranslator
         $ch = curl_init();
         //Set the Curl url.
         curl_setopt( $ch, CURLOPT_URL, $url );
+        //Timeout of 5 seconds
+        curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt( $ch, CURLOPT_TIMEOUT, 5);
         //Set the HTTP HEADER Fields.
         curl_setopt( $ch, CURLOPT_HTTPHEADER, array( $authHeader, "Content-Type: text/xml" ) );
         //CURLOPT_RETURNTRANSFER- TRUE to return the transfer as a string of the return value of curl_exec().
