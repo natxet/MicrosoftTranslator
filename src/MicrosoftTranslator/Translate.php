@@ -116,7 +116,7 @@ class Translate
 
     protected function getUrl( $service = 'single', array $texts, $to, $from )
     {
-        $params = array( 'texts' => json_encode( $texts ), 'to' => $to, 'from' => $from );
+        $params = array( 'to' => $to, 'from' => $from, 'texts' => json_encode( $texts ) );
         return $this->service_url[$service] . '?' . \http_build_query( $params );
     }
 
@@ -130,11 +130,9 @@ class Translate
         $auth_header   = "Authorization: Bearer " . $this->getToken();
         $translator    = new HTTPTranslator();
         $curl_response = $translator->curlRequest( $url, $auth_header );
-        /*
-         * Get rid of the UTF-16 BOM HEXCODE
-         * http://stackoverflow.com/a/7128250/1237569
-         */
-        return substr( $curl_response, 3 );
+        // Get rid of the UTF-16 BOM HEXCODE http://stackoverflow.com/a/7128250/1237569
+        $curl_response = substr( $curl_response, 3 );
+        return $curl_response;
     }
 
 }
