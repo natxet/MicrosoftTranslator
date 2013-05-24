@@ -76,6 +76,8 @@ class Translate
     {
         try {
             if (!is_array( $texts )) {
+                // TO-DO: Do this also for arrays, if all items are empty, avoid connecting
+                if( empty( $texts ) ) return '';
                 $texts = array( $texts );
             }
             $translations = array();
